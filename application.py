@@ -65,6 +65,23 @@ class Application:
     def auto_predict_toggle(self):
         self.auto_predict = not self.auto_predict
 
+    def save_for_class(self, class_number):
+        return_value, frame = self.camera.get_frame()
+        if not os.path.exists('1'):
+            os.mkdir('1')
+        if not os.path.exists('2'):
+            os.mkdir('2')
+
+        image_path = f'{class_number}/frame{self.counters[class_number - 1]}.jpg'
+        cv.imwrite(image_path, cv.cvtColor(frame, cv.COLOR_RGB2GRAY))
+
+        image_size = 150
+        img = PIL.Image.open(image_path)
+        img.thumbnail((image_size, image_size), PIL.Image.ANTIALIAS)
+        img.save(image_path)
+
+        self.counters[class_number - 1] += 1
+
     @staticmethod
     def run_app():
         print("Hello from App")
