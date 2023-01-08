@@ -4,20 +4,19 @@ import cv2 as cv
 import os
 import PIL.Image, PIL.ImageTk
 import camera
+import model
 
 
 class Application:
 
     def __init__(self, window=tk.Tk(), window_title="Camera Classifier"):
         self.window = window
-        self.window.attributes('-topmost', True)
-        self.window.mainloop()
 
         self.window_title = window_title
 
         self.counters = [1, 1]
 
-        #self.model = ...
+        self.model = model.Model()
 
         self.auto_predict = False
 
@@ -27,6 +26,9 @@ class Application:
 
         self.delay = 15
         self.update()
+
+        self.window.attributes('-topmost', True)
+        self.window.mainloop()
 
     def init_gui(self):
         self.canvas = tk.Canvas(self.window, width=self.camera.width, height=self.camera.height)
@@ -46,7 +48,7 @@ class Application:
 
         self.btn_class_two = tk.Button(self.window, text=self.classname_two, width=50,
                                        command=lambda: self.save_for_class(2))
-        self.btn_class_two.pack(anchor=tk.CENTER, epand=True)
+        self.btn_class_two.pack(anchor=tk.CENTER, expand=True)
 
         self.btn_train = tk.Button(self.window, text="Train Model", width=50,
                                    command=lambda: self.model.train_model(self.counters))
@@ -90,13 +92,15 @@ class Application:
                     os.unlink(file_path)
 
         self.counters = [1, 1]
-        #self.model = model.Model()
+        self.model = model.Model()
         self.class_label.config(text='CLASS')
+
+        if self.auto_predict:
+            self.auto_predict = False
 
     def update(self):
         if self.auto_predict:
-            #self.predit()
-            pass
+            self.predict()
 
         return_value, frame = self.camera.get_frame()
 
@@ -106,6 +110,14 @@ class Application:
 
         self.window.after(self.delay, self.update)
 
-    @staticmethod
-    def run_app():
-        print("Hello from App")
+    def predict(self):
+        frame = self.camera.get_frame()
+
+        prediction = self.model.predict(frame)
+
+        if prediction == 1:
+            self.class_label.config(text=self.classname_one)
+            return self.classname_one
+        if prediction == 2:
+            self.class_label.config(text=self.classname_two)
+            return self.classname_two
