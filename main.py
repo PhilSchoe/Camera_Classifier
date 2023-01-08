@@ -1,4 +1,4 @@
 import application
 
 if __name__ == '__main__':
-    application.Application.run_app()
+    application.Application(window_title="My Camera Classifier")
