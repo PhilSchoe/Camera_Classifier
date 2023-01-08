@@ -1,7 +1,7 @@
 from sklearn.svm import LinearSVC
 import numpy as np
 import cv2 as cv
-import PIL
+import PIL.Image
 
 # Rewrite with CNN
 
@@ -31,3 +31,22 @@ class Model:
         self.model.fit(image_list, class_list)
 
         print("Model successfully trained!")
+
+    def predict(self, frame, image_size):
+        frame = frame[1]
+
+        filename = 'frame.jpg'
+
+        cv.imwrite(filename, cv.cvtColor(cv.COLOR_RGB2GRAY))
+
+        image_size = 150
+        img = PIL.Image.open(filename)
+        img.thumbnail((image_size, image_size), PIL.Image.ANTIALIAS)
+        img.save(filename)
+
+        img = cv.imread(filename)[:, :, 0]
+        img = img.reshape(image_size)
+
+        prediction = self.model.predict([img])
+
+        return prediction[0]
